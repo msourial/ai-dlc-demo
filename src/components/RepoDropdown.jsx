@@ -66,7 +66,7 @@ export default function RepoDropdown({ repos, value, onChange }) {
       case 'Enter':
       case ' ':
         e.preventDefault()
-        if (repos[highlighted]) select(repos[highlighted])
+        if (repos[highlighted]) select(repos[highlighted].fullName)
         break
       case 'Escape':
         e.preventDefault()

@@ -4,14 +4,14 @@ import { Activity, Check, Copy } from 'lucide-react'
 import { Card, Button, Badge, SectionHeader, ErrorBox, Spinner } from './UI'
 import { buildRepoContext } from '../lib/repoContext'
 
-const SYSTEM_PROMPT = `You are the AI-DLC Maturity Assessment Engine for software engineering teams.
+const SYSTEM_PROMPT = (repo) => `You are the AI-DLC Maturity Assessment Engine for software engineering teams.
 Your job is to score a team's AI-DLC adoption maturity and provide a specific improvement roadmap.
 
 Given team assessment responses, produce this EXACT output:
 
 AI-DLC MATURITY ASSESSMENT
 ============================
-Program: GenoSync Engineering
+Program: ${repo} Engineering
 Assessment Date: Current Quarter
 
 OVERALL MATURITY SCORE: [X.X / 5.0]
@@ -66,7 +66,7 @@ Key Changes: [3 bullet points on what will be different]
 
 BENCHMARK
 =========
-[Compare to where the GenoSync program should be targeting given the team relies on robust modern engineering practices]`
+[Compare to where the ${repo} program should be targeting given the team relies on robust modern engineering practices]`
 
 const QUESTIONS = [
   {
@@ -107,10 +107,12 @@ const QUESTIONS = [
   },
 ]
 
-export default function MaturityScorer({ repoInfo, readme }) {
+export default function MaturityScorer({ selectedRepo, repoInfo, readme }) {
   const [answers, setAnswers] = useState({})
   const [result, setResult] = useState('')
   const { call, loading, error } = useClaudeAPI()
+
+  const repoName = selectedRepo ? (selectedRepo.split('/')[1] || selectedRepo) : (repoInfo?.fullName || repoInfo?.name || 'Repository')
 
   const setAnswer = (id, val) => setAnswers(prev => ({ ...prev, [id]: val }))
 
@@ -122,7 +124,7 @@ export default function MaturityScorer({ repoInfo, readme }) {
     ).join('\n\n')
     const context = buildRepoContext(repoInfo, null, readme)
     const output = await call(
-      SYSTEM_PROMPT,
+      SYSTEM_PROMPT(repoName),
       `${context}Team assessment responses:\n\n${compiled}`
     )
     if (output) setResult(output)

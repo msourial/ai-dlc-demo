@@ -3,10 +3,9 @@ import { useClaudeAPI } from '../hooks/useClaudeAPI'
 import { Presentation, Sparkles, Copy, ExternalLink, CheckCircle, AlertTriangle, Loader } from 'lucide-react'
 import { Card, Button, Badge, SectionHeader, ErrorBox, Spinner } from './UI'
 import { buildRepoContext } from '../lib/repoContext'
+import { getProjectStatusPresets } from '../lib/projectDefaults'
 import { createGitHubIssue, hasGitHubToken, detectRiskLabels } from '../services/githubService'
 
-// `repo` is filled in per-call so the briefing reflects the actual selected
-// repo (GenoSync, Skyfall, …) rather than always saying "GenoSync".
 const SYSTEM_PROMPT = (repo) => `You are the AI executive communications engine for the ${repo} repository.
 Your job is to transform raw program status into precise, decision-oriented executive briefings that senior leaders can act on.
 
@@ -58,26 +57,17 @@ Prepared with AI-DLC Executive Reporting Engine
 
 Tone: precise, direct, outcome-focused. No fluff. Leaders should be able to read this in 90 seconds and know exactly what's happening and what they need to do.`
 
-const STATUS_PRESETS = [
-  {
-    label: 'On Track',
-    value: `Sprint 14 of 22. Corda DLT node upgrade completed on schedule — Java/Kotlin smart contract migration passed all 142 unit tests with 98% coverage. Paxos API v1 hot wallet ingestion pipeline deployed to staging. 4 of 6 planned milestones delivered. KMS key rotation compliance gate approved by SRE. Blockchain for Energy Consortium parameters validated across 5 jurisdictions. Team on track for Q3 enterprise go-live.`,
-  },
-  {
-    label: 'At Risk',
-    value: `Sprint 8 of 22. Multi-sig cold wallet architecture approved but Paxos API v2 contract not finalized — 1.5 sprint delay to hot/cold reconciliation logic. SRE disaster recovery failover test failed on HSM throughput threshold (56% of required TPS). KMS signing gate certification delayed awaiting hardware security module delivery. Enterprise compliance audit logging pipeline scope increased by 40% after OCC regulatory review. Go-live contingency plan activated.`,
-  },
-  {
-    label: 'Off Track',
-    value: `Sprint 16 of 22. Critical: Blockchain for Energy Consortium node upgrade blocked — 3 of 7 jurisdictions have not ratified delegated proof-of-stake parameter changes. Paxos API key rotation caused a 4-hour hot wallet reconciliation outage in staging. HSM throughput benchmark failed for the third consecutive run. Java smart contract audit returned 4 critical findings. SRE disaster recovery runbook incomplete for cross-jurisdiction failover. 55% of Sprint 16 backlog not delivered. Escalation to Program Steering Committee underway.`,
-  },
-]
-
-export default function ExecBriefing({ selectedRepo, repoInfo, readme }) {
-  const [statusInput, setStatusInput] = useState('')
+export default function ExecBriefing({ selectedRepo, repoInfo, readme, onOpenTokenModal }) {
+  const statusPresets = getProjectStatusPresets(selectedRepo)
+  const [statusInput, setStatusInput] = useState(statusPresets[0].value)
   const [audience, setAudience] = useState('C-Suite (CTO, COO, CRO)')
   const [result, setResult] = useState('')
   const { call, loading, error } = useClaudeAPI()
+
+  React.useEffect(() => {
+    const presets = getProjectStatusPresets(selectedRepo)
+    setStatusInput(presets[0].value)
+  }, [selectedRepo])
 
   const [pushingIssues, setPushingIssues] = useState(false)
   const [pushProgress, setPushProgress] = useState({ done: 0, total: 0 })
@@ -101,6 +91,10 @@ export default function ExecBriefing({ selectedRepo, repoInfo, readme }) {
   }
 
   const pushToGitHub = async () => {
+    if (!tokenReady) {
+      if (onOpenTokenModal) onOpenTokenModal()
+      return
+    }
     if (!result) return
     setPushingIssues(true)
     setPushProgress({ done: 0, total: 1 })
@@ -108,16 +102,20 @@ export default function ExecBriefing({ selectedRepo, repoInfo, readme }) {
     setPushSuccess(null)
 
     try {
+      const repoName = selectedRepo.includes('/') ? selectedRepo.split('/')[1] : selectedRepo
       const issue = await createGitHubIssue({
-        title: `[${selectedRepo}] Executive Briefing — ${new Date().toLocaleDateString()}`,
+        title: `[${repoName}] Executive Briefing — ${new Date().toLocaleDateString()}`,
         body: result,
         labels: ['ai-dlc', 'exec-briefing'],
-      })
+      }, selectedRepo)
       setPushProgress({ done: 1, total: 1 })
       setPushingIssues(false)
       setPushSuccess([issue])
     } catch (err) {
       setPushError(`Failed to create briefing: ${err.message}`)
+      if (err.message.includes('401') && onOpenTokenModal) {
+        onOpenTokenModal()
+      }
       setPushingIssues(false)
     }
   }
@@ -137,7 +135,7 @@ export default function ExecBriefing({ selectedRepo, repoInfo, readme }) {
               Raw Status Notes
             </label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
-              {STATUS_PRESETS.map((p, i) => (
+              {statusPresets.map((p, i) => (
                 <button
                   key={i}
                   onClick={() => setStatusInput(p.value)}
@@ -294,7 +292,7 @@ export default function ExecBriefing({ selectedRepo, repoInfo, readme }) {
                   Briefing pushed to GitHub
                 </div>
                 <a
-                  href="https://github.com/msourial/GenoSync/issues"
+                  href={`https://github.com/${selectedRepo}/issues`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -307,7 +305,7 @@ export default function ExecBriefing({ selectedRepo, repoInfo, readme }) {
                   }}
                 >
                   <ExternalLink size={14} />
-                  Open msourial/GenoSync issues →
+                  Open {selectedRepo} issues →
                 </a>
               </div>
             )}

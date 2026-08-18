@@ -3,6 +3,7 @@ import { useClaudeAPI } from '../hooks/useClaudeAPI'
 import { LayoutDashboard, Zap, ExternalLink, CheckCircle, AlertTriangle, Loader } from 'lucide-react'
 import { Card, Button, Badge, SectionHeader, ErrorBox, Spinner } from './UI'
 import { buildRepoContext } from '../lib/repoContext'
+import { getProjectEpics } from '../lib/projectDefaults'
 import { createGitHubIssue, parseTasksFromDecomposition, hasGitHubToken, detectRiskLabels } from '../services/githubService'
 
 const getSystemPrompt = (repo) => `You are an AI project planner for ${repo}.
@@ -25,12 +26,9 @@ CRITICAL PATH
 AI-DLC ACCELERATION OPPORTUNITIES
 READINESS GATES`
 
-const EXAMPLE_EPICS = [
-  'Epic: Migrate Multi-Signature Crypto Custody Hot/Cold Wallet Architecture to Paxos API Ingestion Infrastructure with Automated SRE Disaster Recovery Gates and Enterprise Compliance Audit Logging.',
-]
-
-export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme }) {
-  const [epic, setEpic] = useState(EXAMPLE_EPICS[0])
+export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme, onOpenTokenModal }) {
+  const exampleEpics = getProjectEpics(selectedRepo, repoInfo)
+  const [epic, setEpic] = useState(exampleEpics[0])
   const [result, setResult] = useState('')
   const { call, loading, error } = useClaudeAPI()
 
@@ -43,12 +41,17 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
   const tokenReady = hasGitHubToken()
 
   React.useEffect(() => {
-    if (repoData && repoData.length > 0) {
-      setEpic(repoData.map(issue => `- #${issue.number}: ${issue.title}`).join('\n'))
+    const repoName = selectedRepo.includes('/') ? selectedRepo.split('/')[1] : selectedRepo
+    const otherRepo = repoName === 'GenoSync' ? 'Skyfall' : 'GenoSync'
+    const filteredIssues = (repoData || []).filter(issue => !issue.title.startsWith(`[${otherRepo}]`))
+
+    if (filteredIssues && filteredIssues.length > 0) {
+      setEpic(filteredIssues.map(issue => `- #${issue.number}: ${issue.title}`).join('\n'))
     } else {
-      setEpic(`Analyze epic for ${selectedRepo}`)
+      const epics = getProjectEpics(selectedRepo, repoInfo)
+      setEpic(epics[0])
     }
-  }, [repoData, selectedRepo])
+  }, [repoData, selectedRepo, repoInfo])
 
   const run = async () => {
     if (!epic.trim()) return
@@ -58,8 +61,9 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
     setResult('')
 
     const context = buildRepoContext(repoInfo, repoData, readme)
+    const repoName = selectedRepo.includes('/') ? selectedRepo.split('/')[1] : selectedRepo
     const output = await call(
-      getSystemPrompt(selectedRepo),
+      getSystemPrompt(repoName),
       `${context}Please decompose this epic:\n\n${epic}`
     )
     if (!output) return
@@ -71,6 +75,10 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
   }
 
   const pushToGitHub = async () => {
+    if (!tokenReady) {
+      if (onOpenTokenModal) onOpenTokenModal()
+      return
+    }
     if (parsedTasks.length === 0) return
     setPushingIssues(true)
     setPushProgress({ done: 0, total: parsedTasks.length })
@@ -80,14 +88,18 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
     const created = []
     for (let i = 0; i < parsedTasks.length; i++) {
       try {
+        const repoName = selectedRepo.includes('/') ? selectedRepo.split('/')[1] : selectedRepo
         const issue = await createGitHubIssue({
-          title: `[${selectedRepo}] ${parsedTasks[i].title}`,
+          title: `[${repoName}] ${parsedTasks[i].title}`,
           body: `**Epic:** ${epic.split('\n')[0]}\n\n**Phase Task:** ${parsedTasks[i].body}\n\n**Owner:** ${parsedTasks[i].owner || 'TBD'}\n**Dependency:** ${parsedTasks[i].dependency || 'None'}\n**Risk Level:** ${parsedTasks[i].risk || 'LOW'}`,
           labels: ['ai-dlc', 'sprint-plan'],
-        })
+        }, selectedRepo)
         created.push(issue)
       } catch (err) {
         setPushError(`Failed to create issue "${parsedTasks[i].title}": ${err.message}`)
+        if (err.message.includes('401') && onOpenTokenModal) {
+          onOpenTokenModal()
+        }
         break
       }
       setPushProgress({ done: i + 1, total: parsedTasks.length })
@@ -117,7 +129,7 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
-            {EXAMPLE_EPICS.map((e, i) => (
+            {exampleEpics.map((e, i) => (
               <button
                 key={i}
                 onClick={() => setEpic(e)}
@@ -195,13 +207,34 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
                 color: 'var(--accent-amber)',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'space-between',
                 gap: '8px',
                 marginBottom: '10px',
               }}>
-                <AlertTriangle size={14} />
-                <span>
-                  <strong>VITE_GITHUB_TOKEN</strong> not configured. Add a <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>GitHub PAT</a> to your <code style={{ background: 'rgba(245,166,35,0.15)', padding: '1px 4px', borderRadius: '3px' }}>.env</code> file with <code style={{ background: 'rgba(245,166,35,0.15)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope.
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <AlertTriangle size={14} />
+                  <span>
+                    <strong>GitHub Token</strong> not configured or invalid. Provide a GitHub PAT with <code style={{ background: 'rgba(245,166,35,0.15)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope to push issues.
+                  </span>
+                </div>
+                {onOpenTokenModal && (
+                  <button
+                    onClick={onOpenTokenModal}
+                    style={{
+                      background: 'var(--accent-amber)',
+                      color: '#000',
+                      border: 'none',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '4px 10px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Configure Token
+                  </button>
+                )}
               </div>
             )}
 
@@ -298,7 +331,7 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
               {pushSuccess.length} GitHub issue{pushSuccess.length !== 1 ? 's' : ''} created successfully
             </div>
             <a
-              href="https://github.com/msourial/GenoSync/issues"
+              href={`https://github.com/${selectedRepo}/issues`}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -311,7 +344,7 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
               }}
             >
               <ExternalLink size={14} />
-              Open msourial/GenoSync issues →
+              Open {selectedRepo} issues →
             </a>
           </div>
         )}

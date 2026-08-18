@@ -5,8 +5,9 @@ import ExecBriefing from './components/ExecBriefing'
 import DependencyTracker from './components/DependencyTracker'
 import MaturityScorer from './components/MaturityScorer'
 import RepoDropdown from './components/RepoDropdown'
+import TokenModal from './components/TokenModal'
 
-import { LayoutDashboard, AlertTriangle, Presentation, Link2, Activity, Hexagon, RefreshCw } from 'lucide-react'
+import { LayoutDashboard, AlertTriangle, Presentation, Link2, Activity, Hexagon, RefreshCw, Key } from 'lucide-react'
 
 // Source-of-truth list of tracked repos. `fullName` is the GitHub `owner/repo`
 // value used for API calls; `name` is the short label shown in the dropdown.
@@ -28,7 +29,7 @@ const TABS = [
   { id: 'maturity', label: 'DLC Maturity', icon: <Activity size={16} />, short: 'Maturity' },
 ]
 
-function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo, repoLoading }) {
+function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo, repoLoading, onOpenTokenModal }) {
   return (
     <header style={{
       borderBottom: '1px solid var(--border)',
@@ -91,6 +92,26 @@ function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo,
                 syncing repo data
               </span>
             )}
+            <button
+              onClick={onOpenTokenModal}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 10px',
+                fontSize: '11px',
+                fontWeight: 500,
+                background: 'var(--bg-input)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Key size={12} style={{ color: 'var(--accent-amber)' }} />
+              GitHub Token
+            </button>
             <span style={{
               width: '6px', height: '6px',
               borderRadius: '50%',
@@ -273,6 +294,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('sprint')
   const [showBanner, setShowBanner] = useState(true)
   const [selectedRepo, setSelectedRepo] = useState(REPOSITORIES[0].fullName)
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false)
 
   // Richer per-repo payload: live metadata + recent issues + README excerpt.
   const [repoInfo, setRepoInfo] = useState(null) // { fullName, name, description, stars, language, updatedAt }
@@ -315,8 +337,10 @@ export default function App() {
     }
   })
 
+  const onOpenTokenModal = () => setIsTokenModalOpen(true)
+
   const renderTab = () => {
-    const props = { selectedRepo, repoData, repoInfo, readme }
+    const props = { selectedRepo, repoData, repoInfo, readme, onOpenTokenModal }
     switch (activeTab) {
       case 'sprint': return <SprintPlanner {...props} />
       case 'risk': return <RiskSurfacer {...props} />
@@ -336,6 +360,7 @@ export default function App() {
         selectedRepo={selectedRepo}
         setSelectedRepo={setSelectedRepo}
         repoLoading={repoLoading}
+        onOpenTokenModal={onOpenTokenModal}
       />
       <main style={{ flex: 1, maxWidth: '1100px', margin: '0 auto', padding: '28px 24px', width: '100%' }}>
         {showBanner && (
@@ -350,6 +375,7 @@ export default function App() {
         {renderTab()}
       </main>
       <Footer />
+      <TokenModal isOpen={isTokenModalOpen} onClose={() => setIsTokenModalOpen(false)} />
     </div>
   )
 }

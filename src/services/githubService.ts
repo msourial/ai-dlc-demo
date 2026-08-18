@@ -1,10 +1,22 @@
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN ?? ''
-const OWNER = 'msourial'
-const REPO = 'GenoSync'
-const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}`
+export function getGitHubToken(): string {
+  const localToken = typeof window !== 'undefined' ? localStorage.getItem('ai_dlc_github_token') : ''
+  if (localToken && localToken.trim()) return localToken.trim()
+  return (import.meta.env.VITE_GITHUB_TOKEN ?? '').trim()
+}
+
+export function setGitHubToken(token: string) {
+  if (typeof window !== 'undefined') {
+    if (token.trim()) {
+      localStorage.setItem('ai_dlc_github_token', token.trim())
+    } else {
+      localStorage.removeItem('ai_dlc_github_token')
+    }
+  }
+}
 
 export function hasGitHubToken(): boolean {
-  return !!GITHUB_TOKEN && GITHUB_TOKEN !== 'YOUR_GITHUB_TOKEN_HERE'
+  const token = getGitHubToken()
+  return !!token && token !== 'YOUR_GITHUB_TOKEN_HERE'
 }
 
 export interface GitHubIssuePayload {
@@ -20,7 +32,7 @@ export interface GitHubIssueResponse {
   state: string
 }
 
-const RISK_KEYWORDS = ['KMS', 'SRE', 'Compliance', 'Paxos', 'Custody', 'HSM', 'gate', 'audit']
+const RISK_KEYWORDS = ['KMS', 'SRE', 'Compliance', 'Paxos', 'Custody', 'HSM', 'gate', 'audit', 'Security', 'Risk', 'Blocker', 'Auth', 'Performance', 'Sync', 'Failover', 'Vulnerability']
 
 export function detectRiskLabels(body: string): string[] {
   const labels: string[] = []
@@ -39,7 +51,7 @@ export function buildRiskWarningBanner(body: string): string {
   const banner = [
     '<!-- RISK WARNING -->',
     '> **⚠️ Compliance / Infrastructure Risk Detected**',
-    '> This task touches sensitive infrastructure (KMS, SRE, Compliance, Paxos, or Custody).',
+    '> This task touches sensitive infrastructure.',
     '> Automated labels `risk:critical` and `gate:compliance` have been applied.',
     '> Review the mitigation requirements below before closing.',
     '',
@@ -49,15 +61,21 @@ export function buildRiskWarningBanner(body: string): string {
   return banner + body
 }
 
-export async function createGitHubIssue(payload: GitHubIssuePayload): Promise<GitHubIssueResponse> {
-  if (!hasGitHubToken()) {
-    throw new Error('VITE_GITHUB_TOKEN is not set — add a GitHub PAT to .env')
+export async function createGitHubIssue(
+  payload: GitHubIssuePayload,
+  repoFullName: string = 'msourial/GenoSync'
+): Promise<GitHubIssueResponse> {
+  const token = getGitHubToken()
+  if (!token || token === 'YOUR_GITHUB_TOKEN_HERE') {
+    throw new Error('GitHub PAT is not set — click "Configure GitHub Token" to enter a Personal Access Token with repo scope.')
   }
 
-  const res = await fetch(`${API_BASE}/issues`, {
+  const apiBase = `https://api.github.com/repos/${repoFullName}`
+
+  const res = await fetch(`${apiBase}/issues`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
       Accept: 'application/vnd.github.v3+json',
     },
@@ -70,6 +88,9 @@ export async function createGitHubIssue(payload: GitHubIssuePayload): Promise<Gi
 
   if (!res.ok) {
     const errBody = await res.text()
+    if (res.status === 401) {
+      throw new Error(`GitHub API Error 401: Invalid or expired GitHub Token ("Bad Credentials"). Please click "Configure Token" to update your GitHub PAT with "repo" scope.`)
+    }
     throw new Error(`GitHub API error ${res.status}: ${errBody}`)
   }
 

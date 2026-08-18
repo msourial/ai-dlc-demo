@@ -3,6 +3,7 @@ import { useClaudeAPI } from '../hooks/useClaudeAPI'
 import { AlertTriangle, Search, ExternalLink, CheckCircle, Loader } from 'lucide-react'
 import { Card, Button, Badge, SectionHeader, ErrorBox, Spinner } from './UI'
 import { buildRepoContext } from '../lib/repoContext'
+import { getProjectScenarios } from '../lib/projectDefaults'
 import { parseRiskReport, createGitHubIssue, hasGitHubToken, detectRiskLabels } from '../services/githubService'
 
 const getSystemPrompt = (repo) => `You are an AI risk intelligence engine for the ${repo} repository.
@@ -42,20 +43,13 @@ DEPENDENCY FLAGS 🔗
 
 REGULATORY READINESS 📋
 -----------------------
-[List 2-3 specific regulatory or compliance checkpoints relevant to crypto custody at a regulated broker-dealer]
+[List 2-3 specific regulatory or compliance checkpoints relevant to the software environment]
 
 AI-DLC RISK MONITORING RECOMMENDATIONS
-=======================================
+======================================
 [List 3 specific ways to use AI agents to continuously monitor, surface, or mitigate these risks]
 
 Be specific to a software development, open-source, or standard sync tool environment. Reference relevant frameworks (CI/CD, OAuth, REST/GraphQL specs) where appropriate.`
-
-const SCENARIOS = [
-  'Corda DLT node upgrade window closing in 3 weeks — Java/Kotlin smart contract migration 40% behind schedule, Blockchain for Energy Consortium SLA at risk',
-  'Paxos API integration for hot wallet reconciliation — KMS key rotation compliance gate not passed, SRE disaster recovery failover test failing for 2 consecutive runs',
-  'Multi-sig custody cold/warm wallet architecture review — delegated proof-of-stake parameter tuning blocked by enterprise compliance audit logging requirement',
-  'Enterprise-grade SRE/KMS signing gate rollout — HSM throughput bottleneck identified, Blockchain for Energy Consortium nodes require simultaneous upgrade coordination across 7 jurisdictions',
-]
 
 const riskColors = {
   'CRITICAL': 'red',
@@ -70,8 +64,9 @@ function parseRiskLevel(text) {
   return match ? match[1].toUpperCase() : null
 }
 
-export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme }) {
-  const [scenario, setScenario] = useState(SCENARIOS[0])
+export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme, onOpenTokenModal }) {
+  const scenarios = getProjectScenarios(selectedRepo)
+  const [scenario, setScenario] = useState(scenarios[0])
   const [result, setResult] = useState('')
   const { call, loading, error } = useClaudeAPI()
 
@@ -84,8 +79,12 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme 
   const tokenReady = hasGitHubToken()
 
   React.useEffect(() => {
-    const issueLine = (repoData && repoData.length > 0)
-      ? repoData.map(issue => `Issue #${issue.number}: ${issue.title}`).join('\n')
+    const repoName = selectedRepo.includes('/') ? selectedRepo.split('/')[1] : selectedRepo
+    const otherRepo = repoName === 'GenoSync' ? 'Skyfall' : 'GenoSync'
+    const filteredIssues = (repoData || []).filter(issue => !issue.title.startsWith(`[${otherRepo}]`))
+
+    const issueLine = (filteredIssues && filteredIssues.length > 0)
+      ? filteredIssues.map(issue => `Issue #${issue.number}: ${issue.title}`).join('\n')
       : ''
     const readmeLine = readme
       ? `README (truncated):\n${readme.slice(0, 2500)}`
@@ -93,7 +92,8 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme 
     if (issueLine || readmeLine) {
       setScenario([issueLine, readmeLine].filter(Boolean).join('\n\n'))
     } else {
-      setScenario(`Analyze risk for ${selectedRepo}`)
+      const scens = getProjectScenarios(selectedRepo)
+      setScenario(scens[0])
     }
   }, [repoData, readme, selectedRepo])
 
@@ -105,8 +105,9 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme 
     setResult('')
 
     const context = buildRepoContext(repoInfo, repoData, readme)
+    const repoName = selectedRepo.includes('/') ? selectedRepo.split('/')[1] : selectedRepo
     const output = await call(
-      getSystemPrompt(selectedRepo),
+      getSystemPrompt(repoName),
       `${context}Analyze this scenario for risks:\n\n${scenario}`
     )
     if (!output) return
@@ -118,6 +119,10 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme 
   }
 
   const pushToGitHub = async () => {
+    if (!tokenReady) {
+      if (onOpenTokenModal) onOpenTokenModal()
+      return
+    }
     if (parsedRisks.length === 0) return
     setPushingIssues(true)
     setPushProgress({ done: 0, total: parsedRisks.length })
@@ -128,14 +133,18 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme 
     for (let i = 0; i < parsedRisks.length; i++) {
       try {
         const risk = parsedRisks[i]
+        const repoName = selectedRepo.includes('/') ? selectedRepo.split('/')[1] : selectedRepo
         const issue = await createGitHubIssue({
-          title: `[${selectedRepo}] ${risk.id}: ${risk.risk}`,
+          title: `[${repoName}] ${risk.id}: ${risk.risk}`,
           body: `**Risk ID:** ${risk.id}\n**Category:** ${risk.category}\n**Risk:** ${risk.risk}\n**Probability:** ${risk.probability}\n**Impact:** ${risk.impact}\n**Root Cause:** ${risk.rootCause}\n**Mitigation:** ${risk.mitigation}\n**Owner:** ${risk.owner}\n**Trigger:** ${risk.trigger}`,
           labels: ['ai-dlc', 'risk-intel'],
-        })
+        }, selectedRepo)
         created.push(issue)
       } catch (err) {
         setPushError(`Failed to create issue "${parsedRisks[i].id}: ${parsedRisks[i].risk}": ${err.message}`)
+        if (err.message.includes('401') && onOpenTokenModal) {
+          onOpenTokenModal()
+        }
         break
       }
       setPushProgress({ done: i + 1, total: parsedRisks.length })
@@ -219,7 +228,7 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme 
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
-            {SCENARIOS.map((s, i) => (
+            {scenarios.map((s, i) => (
               <button
                 key={i}
                 onClick={() => setScenario(s)}
@@ -402,7 +411,7 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme 
               {pushSuccess.length} GitHub issue{pushSuccess.length !== 1 ? 's' : ''} created successfully
             </div>
             <a
-              href="https://github.com/msourial/GenoSync/issues"
+              href={`https://github.com/${selectedRepo}/issues`}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -415,7 +424,7 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme 
               }}
             >
               <ExternalLink size={14} />
-              Open msourial/GenoSync issues →
+              Open {selectedRepo} issues →
             </a>
           </div>
         )}
