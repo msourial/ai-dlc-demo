@@ -169,12 +169,12 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme,
             alignItems: 'center',
             gap: '10px',
             padding: '10px 16px',
-            background: riskLevel === 'CRITICAL' ? 'rgba(255,77,106,0.08)' :
-                        riskLevel === 'HIGH' ? 'rgba(245,166,35,0.08)' :
-                        riskLevel === 'MEDIUM' ? 'rgba(99,140,255,0.08)' : 'rgba(0,208,132,0.08)',
-            border: `1px solid ${riskLevel === 'CRITICAL' ? 'rgba(255,77,106,0.3)' :
-                                  riskLevel === 'HIGH' ? 'rgba(245,166,35,0.3)' :
-                                  riskLevel === 'MEDIUM' ? 'rgba(99,140,255,0.3)' : 'rgba(0,208,132,0.3)'}`,
+            background: riskLevel === 'CRITICAL' ? 'rgba(251,113,133,0.1)' :
+                        riskLevel === 'HIGH' ? 'rgba(251,191,36,0.1)' :
+                        riskLevel === 'MEDIUM' ? 'rgba(96,165,250,0.1)' : 'rgba(52,211,153,0.1)',
+            border: `1px solid ${riskLevel === 'CRITICAL' ? 'rgba(251,113,133,0.3)' :
+                                  riskLevel === 'HIGH' ? 'rgba(251,191,36,0.3)' :
+                                  riskLevel === 'MEDIUM' ? 'rgba(96,165,250,0.3)' : 'rgba(52,211,153,0.3)'}`,
             borderRadius: 'var(--radius-sm)',
             marginBottom: '12px',
           }}>
@@ -233,8 +233,8 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme,
                 key={i}
                 onClick={() => setScenario(s)}
                 style={{
-                  background: scenario === s ? 'rgba(255,77,106,0.08)' : 'var(--bg-input)',
-                  border: `1px solid ${scenario === s ? 'rgba(255,77,106,0.4)' : 'var(--border)'}`,
+                  background: scenario === s ? 'rgba(251,113,133,0.1)' : 'var(--bg-input)',
+                  border: `1px solid ${scenario === s ? 'rgba(251,113,133,0.4)' : 'var(--border)'}`,
                   color: scenario === s ? 'var(--accent-red)' : 'var(--text-secondary)',
                   borderRadius: 'var(--radius-sm)',
                   padding: '5px 10px',
@@ -300,8 +300,8 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme,
             {!tokenReady && (
               <div style={{
                 padding: '10px 14px',
-                background: 'rgba(245,166,35,0.08)',
-                border: '1px solid rgba(245,166,35,0.3)',
+                background: 'rgba(251,191,36,0.1)',
+                border: '1px solid rgba(251,191,36,0.3)',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '12px',
                 color: 'var(--accent-amber)',
@@ -312,7 +312,7 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme,
               }}>
                 <AlertTriangle size={14} />
                 <span>
-                  <strong>VITE_GITHUB_TOKEN</strong> not configured. Add a <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>GitHub PAT</a> to your <code style={{ background: 'rgba(245,166,35,0.15)', padding: '1px 4px', borderRadius: '3px' }}>.env</code> file with <code style={{ background: 'rgba(245,166,35,0.15)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope.
+                  <strong>VITE_GITHUB_TOKEN</strong> not configured. Add a <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>GitHub PAT</a> to your <code style={{ background: 'rgba(251,191,36,0.18)', padding: '1px 4px', borderRadius: '3px' }}>.env</code> file with <code style={{ background: 'rgba(251,191,36,0.18)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope.
                 </span>
               </div>
             )}
@@ -358,9 +358,9 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme,
                         fontSize: '10px',
                         padding: '2px 8px',
                         borderRadius: '20px',
-                        background: 'rgba(255,77,106,0.08)',
+                        background: 'rgba(251,113,133,0.1)',
                         color: 'var(--accent-red)',
-                        border: '1px solid rgba(255,77,106,0.3)',
+                        border: '1px solid rgba(251,113,133,0.3)',
                         whiteSpace: 'nowrap',
                       }}>
                         risk:critical
@@ -378,7 +378,7 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme,
             marginTop: '12px',
             padding: '10px 14px',
             background: 'var(--accent-blue-dim)',
-            border: '1px solid rgba(99,140,255,0.3)',
+            border: '1px solid rgba(96,165,250,0.3)',
             borderRadius: 'var(--radius-sm)',
             fontSize: '12px',
             color: 'var(--accent-blue)',
@@ -398,7 +398,7 @@ export default function RiskSurfacer({ selectedRepo, repoData, repoInfo, readme,
             marginTop: '12px',
             padding: '14px 16px',
             background: 'var(--accent-green-dim)',
-            border: '1px solid rgba(0,208,132,0.3)',
+            border: '1px solid rgba(52,211,153,0.3)',
             borderRadius: 'var(--radius-sm)',
             fontSize: '13px',
             color: 'var(--accent-green)',

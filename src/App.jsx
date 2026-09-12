@@ -32,11 +32,14 @@ const TABS = [
 function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo, repoLoading, onOpenTokenModal }) {
   return (
     <header style={{
-      borderBottom: '1px solid var(--border)',
-      background: 'var(--bg-secondary)',
+      borderBottom: '1px solid rgba(56,81,143,0.4)',
+      background: 'rgba(10,15,30,0.78)',
+      backdropFilter: 'blur(14px) saturate(140%)',
+      WebkitBackdropFilter: 'blur(14px) saturate(140%)',
       position: 'sticky',
       top: 0,
       zIndex: 100,
+      boxShadow: '0 1px 0 rgba(148,163,184,0.06), 0 8px 24px rgba(2,6,16,0.25)',
     }}>
       <div style={{
         maxWidth: '1100px',
@@ -46,15 +49,18 @@ function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo,
         <div style={{
           display: 'flex',
           alignItems: 'center',
+          flexWrap: 'wrap',
+          rowGap: '10px',
           gap: '16px',
           padding: '14px 0 0',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginRight: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginRight: '8px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              background: 'var(--accent-blue)',
+              width: '34px',
+              height: '34px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%)',
+              boxShadow: '0 4px 14px rgba(96,165,250,0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -64,10 +70,10 @@ function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo,
               <Hexagon size={18} strokeWidth={2.5} />
             </div>
             <div>
-              <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2, fontFamily: 'var(--font-display)', letterSpacing: '-0.01em' }}>
                 AI-DLC Command Center
               </div>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.05em', marginTop: '2px', minWidth: '160px' }}>
+              <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', letterSpacing: '0.05em', marginTop: '3px', minWidth: '160px' }}>
                 <RepoDropdown
                   repos={repos}
                   value={selectedRepo}
@@ -87,26 +93,36 @@ function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo,
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: '5px',
                 fontSize: '10px', color: 'var(--text-muted)',
-              }}>
+              }} className="hide-sm">
                 <RefreshCw size={10} style={{ animation: 'spin 0.7s linear infinite' }} />
                 syncing repo data
               </span>
             )}
             <button
               onClick={onOpenTokenModal}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'var(--bg-card-hover)'
+                e.currentTarget.style.borderColor = 'var(--border-strong)'
+                e.currentTarget.style.color = 'var(--text-primary)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'var(--bg-input)'
+                e.currentTarget.style.borderColor = 'var(--border)'
+                e.currentTarget.style.color = 'var(--text-secondary)'
+              }}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '5px',
-                padding: '4px 10px',
+                gap: '6px',
+                padding: '5px 12px',
                 fontSize: '11px',
-                fontWeight: 500,
+                fontWeight: 600,
                 background: 'var(--bg-input)',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-sm)',
                 color: 'var(--text-secondary)',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                transition: 'all var(--transition)',
               }}
             >
               <Key size={12} style={{ color: 'var(--accent-amber)' }} />
@@ -119,15 +135,17 @@ function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo,
               display: 'inline-block',
               animation: 'pulse-glow 2s ease infinite',
             }} />
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>OpenRouter AI powered</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }} className="hide-sm">OpenRouter AI powered</span>
           </div>
         </div>
 
         <nav style={{
           display: 'flex',
-          gap: '2px',
-          marginTop: '12px',
+          gap: '4px',
+          marginTop: '10px',
+          marginBottom: '10px',
           overflowX: 'auto',
+          scrollbarWidth: 'none',
         }}>
           {TABS.map(tab => (
             <button
@@ -136,28 +154,32 @@ function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo,
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '8px 14px',
+                gap: '7px',
+                padding: '7px 14px',
                 fontSize: '12.5px',
-                fontWeight: activeTab === tab.id ? 600 : 400,
+                fontWeight: activeTab === tab.id ? 600 : 500,
                 color: activeTab === tab.id ? 'var(--accent-blue)' : 'var(--text-secondary)',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: activeTab === tab.id ? '2px solid var(--accent-blue)' : '2px solid transparent',
-                borderRadius: '0',
+                background: activeTab === tab.id ? 'var(--accent-blue-dim)' : 'transparent',
+                border: `1px solid ${activeTab === tab.id ? 'rgba(96,165,250,0.22)' : 'transparent'}`,
+                borderRadius: 'var(--radius-full)',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                transition: 'all var(--transition)',
                 whiteSpace: 'nowrap',
-                marginBottom: '-1px',
               }}
               onMouseEnter={e => {
-                if (activeTab !== tab.id) e.currentTarget.style.color = 'var(--text-primary)'
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.color = 'var(--text-primary)'
+                  e.currentTarget.style.background = 'var(--bg-card-hover)'
+                }
               }}
               onMouseLeave={e => {
-                if (activeTab !== tab.id) e.currentTarget.style.color = 'var(--text-secondary)'
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                  e.currentTarget.style.background = 'transparent'
+                }
               }}
             >
-              <span style={{ fontSize: '14px' }}>{tab.icon}</span>
+              <span style={{ fontSize: '14px', display: 'inline-flex' }}>{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           ))}
@@ -170,14 +192,15 @@ function Header({ activeTab, setActiveTab, repos, selectedRepo, setSelectedRepo,
 function Footer() {
   return (
     <footer style={{
-      borderTop: '1px solid var(--border)',
-      padding: '16px 24px',
+      borderTop: '1px solid rgba(56,81,143,0.4)',
+      background: 'rgba(10,15,30,0.5)',
+      padding: '18px 24px',
       marginTop: '40px',
       textAlign: 'center',
     }}>
       <p style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
         AI-DLC Command Center · Built to demonstrate AI-Centric Development Life Cycle principles ·
-        Powered by OpenRouter Gemma Model ·{' '}
+        Powered by OpenRouter (gpt-4o-mini) ·{' '}
         <a
           href="https://github.com/msourial"
           target="_blank"
@@ -199,12 +222,13 @@ function WelcomeBanner({ onDismiss, selectedRepo, repoInfo, repoData, repoLoadin
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, rgba(99,140,255,0.08) 0%, rgba(167,139,250,0.06) 100%)',
+      background: 'linear-gradient(135deg, rgba(96,165,250,0.09) 0%, rgba(167,139,250,0.06) 100%)',
       border: '1px solid var(--border-strong)',
       borderRadius: 'var(--radius-lg)',
       padding: '20px 24px',
       marginBottom: '24px',
       position: 'relative',
+      boxShadow: 'var(--shadow-sm)',
     }}>
       <button
         onClick={onDismiss}
@@ -231,14 +255,14 @@ function WelcomeBanner({ onDismiss, selectedRepo, repoInfo, repoData, repoLoadin
               <span style={{
                 padding: '3px 8px', background: 'var(--accent-blue-dim)',
                 color: 'var(--accent-blue)', borderRadius: '12px', fontSize: '11px',
-                border: '1px solid rgba(99,140,255,0.2)',
+                border: '1px solid rgba(96,165,250,0.28)',
               }}>Syncing with GitHub…</span>
             )}
             {!repoLoading && description && (
               <span style={{
                 padding: '3px 8px', background: 'var(--accent-purple-dim)',
                 color: 'var(--accent-purple)', borderRadius: '12px', fontSize: '11px',
-                border: '1px solid rgba(167,139,250,0.25)', maxWidth: '100%',
+                border: '1px solid rgba(167,139,250,0.3)', maxWidth: '100%',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               }} title={description}>“{description}”</span>
             )}
@@ -246,21 +270,21 @@ function WelcomeBanner({ onDismiss, selectedRepo, repoInfo, repoData, repoLoadin
               <span style={{
                 padding: '3px 8px', background: 'var(--accent-green-dim)',
                 color: 'var(--accent-green)', borderRadius: '12px', fontSize: '11px',
-                border: '1px solid rgba(0,208,132,0.25)',
+                border: '1px solid rgba(52,211,153,0.3)',
               }}>{language}</span>
             )}
             {!repoLoading && typeof stars === 'number' && (
               <span style={{
                 padding: '3px 8px', background: 'var(--accent-amber-dim)',
                 color: 'var(--accent-amber)', borderRadius: '12px', fontSize: '11px',
-                border: '1px solid rgba(245,166,35,0.25)',
+                border: '1px solid rgba(251,191,36,0.3)',
               }}>★ {stars}</span>
             )}
             {!repoLoading && (
               <span style={{
                 padding: '3px 8px', background: 'var(--accent-teal-dim)',
                 color: 'var(--accent-teal)', borderRadius: '12px', fontSize: '11px',
-                border: '1px solid rgba(20,184,166,0.25)',
+                border: '1px solid rgba(45,212,191,0.3)',
               }}>{issueCount} recent issues</span>
             )}
           </div>
@@ -278,7 +302,7 @@ function WelcomeBanner({ onDismiss, selectedRepo, repoInfo, repoData, repoLoadin
                 color: 'var(--accent-blue)',
                 borderRadius: '12px',
                 fontSize: '11px',
-                border: '1px solid rgba(99,140,255,0.2)',
+                border: '1px solid rgba(96,165,250,0.28)',
               }}>
                 {tag}
               </span>

@@ -102,7 +102,7 @@ export default function RepoDropdown({ repos, value, onChange }) {
           cursor: 'pointer',
           textAlign: 'left',
           transition: 'all var(--transition)',
-          boxShadow: open ? '0 0 0 3px rgba(99,140,255,0.1)' : 'none',
+          boxShadow: open ? '0 0 0 3px rgba(96,165,250,0.12)' : 'none',
         }}
       >
         <GitBranch size={13} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
@@ -136,10 +136,10 @@ export default function RepoDropdown({ repos, value, onChange }) {
             margin: 0,
             padding: '4px',
             listStyle: 'none',
-            background: 'var(--bg-secondary)',
+            background: 'var(--bg-elevated)',
             border: '1px solid var(--border-strong)',
             borderRadius: 'var(--radius-sm)',
-            boxShadow: '0 12px 32px rgba(0,0,0,0.45)',
+            boxShadow: 'var(--shadow-lg)',
             maxHeight: '240px',
             overflowY: 'auto',
           }}

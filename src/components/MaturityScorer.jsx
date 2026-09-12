@@ -148,7 +148,7 @@ export default function MaturityScorer({ selectedRepo, repoInfo, readme }) {
               {QUESTIONS.map((q, i) => (
                 <div key={q.id} style={{
                   background: 'var(--bg-secondary)',
-                  border: `1px solid ${answers[q.id]?.trim() ? 'rgba(0,208,132,0.25)' : 'var(--border)'}`,
+                  border: `1px solid ${answers[q.id]?.trim() ? 'rgba(52,211,153,0.28)' : 'var(--border)'}`,
                   borderRadius: 'var(--radius-sm)',
                   padding: '14px 16px',
                   transition: 'border-color 0.2s ease',

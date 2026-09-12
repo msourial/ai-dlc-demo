@@ -116,7 +116,7 @@ export default function TokenModal({ isOpen, onClose }) {
             }}
           />
           <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.4 }}>
-            Generate a token on <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>GitHub Settings → Personal Access Tokens</a> with <code style={{ background: 'rgba(99,140,255,0.15)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope.
+            Generate a token on <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>GitHub Settings → Personal Access Tokens</a> with <code style={{ background: 'rgba(96,165,250,0.18)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope.
           </p>
         </div>
 
@@ -124,7 +124,7 @@ export default function TokenModal({ isOpen, onClose }) {
           <div style={{
             padding: '10px 14px',
             background: 'var(--accent-green-dim)',
-            border: '1px solid rgba(0,208,132,0.3)',
+            border: '1px solid rgba(52,211,153,0.3)',
             borderRadius: 'var(--radius-sm)',
             fontSize: '12px',
             color: 'var(--accent-green)',
@@ -141,8 +141,8 @@ export default function TokenModal({ isOpen, onClose }) {
         {testResult?.error && (
           <div style={{
             padding: '10px 14px',
-            background: 'rgba(255,77,106,0.08)',
-            border: '1px solid rgba(255,77,106,0.3)',
+            background: 'rgba(251,113,133,0.1)',
+            border: '1px solid rgba(251,113,133,0.3)',
             borderRadius: 'var(--radius-sm)',
             fontSize: '12px',
             color: 'var(--accent-red)',

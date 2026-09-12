@@ -249,7 +249,7 @@ export default function DependencyTracker({ selectedRepo, repoInfo, readme, onOp
               <Button
                 onClick={pushToGitHub}
                 disabled={pushing}
-                style={hasGitHubToken() ? { background: '#16a34a', color: '#fff' } : { background: '#6b7280', color: '#fff' }}
+                style={hasGitHubToken() ? { background: 'var(--accent-green)', color: '#fff' } : { background: 'var(--text-muted)', color: '#fff' }}
               >
                 {pushing ? <Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <ExternalLink size={14} />}
                 {pushing ? 'Pushing...' : `Push ${parsedDeps.length} Dependencies to GitHub`}
@@ -258,30 +258,30 @@ export default function DependencyTracker({ selectedRepo, repoInfo, readme, onOp
 
             {!hasGitHubToken() && (
               <div style={{
-                background: '#fef3c7',
-                border: '1px solid #f59e0b',
+                background: 'var(--accent-amber-dim)',
+                border: '1px solid rgba(251,191,36,0.3)',
                 borderRadius: 'var(--radius-sm)',
                 padding: '10px 14px',
                 fontSize: '12px',
-                color: '#92400e',
+                color: 'var(--accent-amber)',
                 marginBottom: '12px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
               }}>
                 <AlertTriangle size={14} />
-                <span>GitHub token not set. Add <code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '4px' }}>VITE_GITHUB_TOKEN</code> to your <code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '4px' }}>.env</code> file to enable pushing issues.</span>
+                <span>GitHub token not set. Add <code style={{ background: 'rgba(251,191,36,0.18)', padding: '2px 6px', borderRadius: '4px' }}>VITE_GITHUB_TOKEN</code> to your <code style={{ background: 'rgba(251,191,36,0.18)', padding: '2px 6px', borderRadius: '4px' }}>.env</code> file to enable pushing issues.</span>
               </div>
             )}
 
             {pushError && (
               <div style={{
-                background: '#fef2f2',
-                border: '1px solid #dc2626',
+                background: 'var(--accent-red-dim)',
+                border: '1px solid rgba(251,113,133,0.3)',
                 borderRadius: 'var(--radius-sm)',
                 padding: '10px 14px',
                 fontSize: '12px',
-                color: '#991b1b',
+                color: 'var(--accent-red)',
                 marginBottom: '12px',
               }}>
                 <strong>Push error:</strong> {pushError}
@@ -290,12 +290,12 @@ export default function DependencyTracker({ selectedRepo, repoInfo, readme, onOp
 
             {pushResults.length > 0 && (
               <div style={{
-                background: '#f0fdf4',
-                border: '1px solid #16a34a',
+                background: 'var(--accent-green-dim)',
+                border: '1px solid rgba(52,211,153,0.3)',
                 borderRadius: 'var(--radius-sm)',
                 padding: '12px 16px',
                 fontSize: '12px',
-                color: '#166534',
+                color: 'var(--accent-green)',
                 marginBottom: '12px',
                 display: 'flex',
                 alignItems: 'center',
@@ -304,7 +304,7 @@ export default function DependencyTracker({ selectedRepo, repoInfo, readme, onOp
                 <CheckCircle2 size={16} />
                 <span>Successfully pushed {pushResults.length} {pushResults.length === 1 ? 'issue' : 'issues'} to GitHub.</span>
                 {pushResults.map(r => (
-                  <a key={r.number} href={r.html_url} target="_blank" rel="noopener noreferrer" style={{ color: '#16a34a', textDecoration: 'underline', marginLeft: '4px' }}>
+                  <a key={r.number} href={r.html_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-green)', textDecoration: 'underline', marginLeft: '4px' }}>
                     #{r.number}
                   </a>
                 ))}

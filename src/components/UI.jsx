@@ -9,6 +9,7 @@ export function Card({ children, style = {}, className = '' }) {
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-sm)',
         padding: '24px',
         ...style,
       }}
@@ -23,12 +24,12 @@ export function Button({ children, onClick, disabled, variant = 'primary', size 
     display: 'inline-flex',
     alignItems: 'center',
     gap: '8px',
-    fontWeight: 500,
+    fontWeight: 600,
     border: 'none',
     borderRadius: 'var(--radius-sm)',
     cursor: disabled ? 'not-allowed' : 'pointer',
     opacity: disabled ? 0.5 : 1,
-    transition: 'all 0.18s ease',
+    transition: 'all var(--transition)',
     fontSize: size === 'sm' ? '12px' : '13px',
     padding: size === 'sm' ? '6px 12px' : '10px 18px',
   }
@@ -36,6 +37,7 @@ export function Button({ children, onClick, disabled, variant = 'primary', size 
     primary: {
       background: 'var(--accent-blue)',
       color: '#fff',
+      boxShadow: '0 4px 14px rgba(96,165,250,0.28)',
     },
     secondary: {
       background: 'var(--bg-input)',
@@ -49,6 +51,7 @@ export function Button({ children, onClick, disabled, variant = 'primary', size 
     danger: {
       background: 'var(--accent-red)',
       color: '#fff',
+      boxShadow: '0 4px 14px rgba(251,113,133,0.25)',
     },
   }
   return (
@@ -57,14 +60,20 @@ export function Button({ children, onClick, disabled, variant = 'primary', size 
       style={{ ...base, ...variants[variant], ...style }}
       onMouseEnter={e => {
         if (!disabled) {
-          if (variant === 'primary') e.currentTarget.style.background = '#7aa0ff'
+          if (variant === 'primary') {
+            e.currentTarget.style.background = '#86b7ff'
+            e.currentTarget.style.boxShadow = '0 4px 18px rgba(96,165,250,0.4)'
+          }
           if (variant === 'secondary') e.currentTarget.style.borderColor = 'var(--accent-blue)'
           if (variant === 'ghost') e.currentTarget.style.color = 'var(--text-primary)'
         }
       }}
       onMouseLeave={e => {
         if (!disabled) {
-          if (variant === 'primary') e.currentTarget.style.background = 'var(--accent-blue)'
+          if (variant === 'primary') {
+            e.currentTarget.style.background = 'var(--accent-blue)'
+            e.currentTarget.style.boxShadow = '0 4px 14px rgba(96,165,250,0.28)'
+          }
           if (variant === 'secondary') e.currentTarget.style.borderColor = 'var(--border)'
           if (variant === 'ghost') e.currentTarget.style.color = 'var(--text-secondary)'
         }
@@ -77,13 +86,13 @@ export function Button({ children, onClick, disabled, variant = 'primary', size 
 
 export function Badge({ children, color = 'blue' }) {
   const colors = {
-    blue: { bg: 'var(--accent-blue-dim)', text: 'var(--accent-blue)', border: 'rgba(99,140,255,0.25)' },
-    green: { bg: 'var(--accent-green-dim)', text: 'var(--accent-green)', border: 'rgba(0,208,132,0.25)' },
-    amber: { bg: 'var(--accent-amber-dim)', text: 'var(--accent-amber)', border: 'rgba(245,166,35,0.25)' },
-    red: { bg: 'var(--accent-red-dim)', text: 'var(--accent-red)', border: 'rgba(255,77,106,0.25)' },
-    purple: { bg: 'var(--accent-purple-dim)', text: 'var(--accent-purple)', border: 'rgba(167,139,250,0.25)' },
-    teal: { bg: 'var(--accent-teal-dim)', text: 'var(--accent-teal)', border: 'rgba(20,184,166,0.25)' },
-    gray: { bg: 'rgba(138,155,196,0.1)', text: 'var(--text-secondary)', border: 'rgba(138,155,196,0.2)' },
+    blue: { bg: 'var(--accent-blue-dim)', text: 'var(--accent-blue)', border: 'rgba(96,165,250,0.28)' },
+    green: { bg: 'var(--accent-green-dim)', text: 'var(--accent-green)', border: 'rgba(52,211,153,0.28)' },
+    amber: { bg: 'var(--accent-amber-dim)', text: 'var(--accent-amber)', border: 'rgba(251,191,36,0.28)' },
+    red: { bg: 'var(--accent-red-dim)', text: 'var(--accent-red)', border: 'rgba(251,113,133,0.28)' },
+    purple: { bg: 'var(--accent-purple-dim)', text: 'var(--accent-purple)', border: 'rgba(167,139,250,0.3)' },
+    teal: { bg: 'var(--accent-teal-dim)', text: 'var(--accent-teal)', border: 'rgba(45,212,191,0.28)' },
+    gray: { bg: 'rgba(138,155,196,0.1)', text: 'var(--text-secondary)', border: 'rgba(138,155,196,0.22)' },
   }
   const c = colors[color] || colors.blue
   return (
@@ -134,7 +143,7 @@ export function SectionHeader({ icon, title, subtitle }) {
     <div style={{ marginBottom: '24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
         <span style={{ display: 'flex', alignItems: 'center', color: 'var(--accent-blue)' }}>{icon}</span>
-        <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>{title}</h2>
+        <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', letterSpacing: '-0.015em' }}>{title}</h2>
       </div>
       {subtitle && (
         <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5, marginLeft: '30px' }}>
@@ -182,7 +191,7 @@ export function ErrorBox({ message }) {
       marginTop: '12px',
       padding: '10px 14px',
       background: 'var(--accent-red-dim)',
-      border: '1px solid rgba(255,77,106,0.3)',
+      border: '1px solid rgba(251,113,133,0.3)',
       borderRadius: 'var(--radius-sm)',
       fontSize: '12px',
       color: 'var(--accent-red)',

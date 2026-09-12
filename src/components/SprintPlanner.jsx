@@ -200,8 +200,8 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
             {!tokenReady && (
               <div style={{
                 padding: '10px 14px',
-                background: 'rgba(245,166,35,0.08)',
-                border: '1px solid rgba(245,166,35,0.3)',
+                background: 'rgba(251,191,36,0.1)',
+                border: '1px solid rgba(251,191,36,0.3)',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '12px',
                 color: 'var(--accent-amber)',
@@ -214,7 +214,7 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <AlertTriangle size={14} />
                   <span>
-                    <strong>GitHub Token</strong> not configured or invalid. Provide a GitHub PAT with <code style={{ background: 'rgba(245,166,35,0.15)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope to push issues.
+                    <strong>GitHub Token</strong> not configured or invalid. Provide a GitHub PAT with <code style={{ background: 'rgba(251,191,36,0.18)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope to push issues.
                   </span>
                 </div>
                 {onOpenTokenModal && (
@@ -278,9 +278,9 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
                         fontSize: '10px',
                         padding: '2px 8px',
                         borderRadius: '20px',
-                        background: 'rgba(255,77,106,0.08)',
+                        background: 'rgba(251,113,133,0.1)',
                         color: 'var(--accent-red)',
-                        border: '1px solid rgba(255,77,106,0.3)',
+                        border: '1px solid rgba(251,113,133,0.3)',
                         whiteSpace: 'nowrap',
                       }}>
                         risk:critical
@@ -298,7 +298,7 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
             marginTop: '12px',
             padding: '10px 14px',
             background: 'var(--accent-blue-dim)',
-            border: '1px solid rgba(99,140,255,0.3)',
+            border: '1px solid rgba(96,165,250,0.3)',
             borderRadius: 'var(--radius-sm)',
             fontSize: '12px',
             color: 'var(--accent-blue)',
@@ -318,7 +318,7 @@ export default function SprintPlanner({ selectedRepo, repoData, repoInfo, readme
             marginTop: '12px',
             padding: '14px 16px',
             background: 'var(--accent-green-dim)',
-            border: '1px solid rgba(0,208,132,0.3)',
+            border: '1px solid rgba(52,211,153,0.3)',
             borderRadius: 'var(--radius-sm)',
             fontSize: '13px',
             color: 'var(--accent-green)',

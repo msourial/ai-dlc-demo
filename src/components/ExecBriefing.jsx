@@ -238,8 +238,8 @@ export default function ExecBriefing({ selectedRepo, repoInfo, readme, onOpenTok
               <div style={{
                 marginTop: '10px',
                 padding: '10px 14px',
-                background: 'rgba(245,166,35,0.08)',
-                border: '1px solid rgba(245,166,35,0.3)',
+                background: 'rgba(251,191,36,0.1)',
+                border: '1px solid rgba(251,191,36,0.3)',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '12px',
                 color: 'var(--accent-amber)',
@@ -249,7 +249,7 @@ export default function ExecBriefing({ selectedRepo, repoInfo, readme, onOpenTok
               }}>
                 <AlertTriangle size={14} />
                 <span>
-                  <strong>VITE_GITHUB_TOKEN</strong> not configured. Add a <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>GitHub PAT</a> to your <code style={{ background: 'rgba(245,166,35,0.15)', padding: '1px 4px', borderRadius: '3px' }}>.env</code> file with <code style={{ background: 'rgba(245,166,35,0.15)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope.
+                  <strong>VITE_GITHUB_TOKEN</strong> not configured. Add a <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}>GitHub PAT</a> to your <code style={{ background: 'rgba(251,191,36,0.18)', padding: '1px 4px', borderRadius: '3px' }}>.env</code> file with <code style={{ background: 'rgba(251,191,36,0.18)', padding: '1px 4px', borderRadius: '3px' }}>repo</code> scope.
                 </span>
               </div>
             )}
@@ -259,7 +259,7 @@ export default function ExecBriefing({ selectedRepo, repoInfo, readme, onOpenTok
                 marginTop: '10px',
                 padding: '10px 14px',
                 background: 'var(--accent-blue-dim)',
-                border: '1px solid rgba(99,140,255,0.3)',
+                border: '1px solid rgba(96,165,250,0.3)',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '12px',
                 color: 'var(--accent-blue)',
@@ -279,7 +279,7 @@ export default function ExecBriefing({ selectedRepo, repoInfo, readme, onOpenTok
                 marginTop: '12px',
                 padding: '14px 16px',
                 background: 'var(--accent-green-dim)',
-                border: '1px solid rgba(0,208,132,0.3)',
+                border: '1px solid rgba(52,211,153,0.3)',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '13px',
                 color: 'var(--accent-green)',
