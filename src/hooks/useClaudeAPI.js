@@ -3,7 +3,7 @@ import { useState } from 'react'
 const OPENROUTER_API_KEY =
   import.meta.env.VITE_OPENROUTER_API_KEY
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions'
-const MODEL = 'openai/gpt-4o-mini'
+const MODEL = 'openrouter/free'
 
 export function useClaudeAPI() {
   const [loading, setLoading] = useState(false)

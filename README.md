@@ -45,7 +45,7 @@ Answer 6 questions about current team practices → AI scores maturity across 6 
 ## Tech Stack
 
 - **Frontend**: React 18 + Vite
-- **AI Engine**: OpenRouter API (`openai/gpt-4o-mini`) via the `chat/completions` endpoint
+- **AI Engine**: OpenRouter API (free models via `openrouter/free`) through the `chat/completions` endpoint
 - **Data**: Live GitHub metadata, issues, and READMEs per selected repo
 - **Styling**: Pure CSS with design tokens (dark-mode native)
 - **No framework dependencies** beyond React + Lucide icons
@@ -80,7 +80,7 @@ VITE_GITHUB_TOKEN=github_pat_...
 src/
 ├── App.jsx                    # Navigation + layout shell + GitHub repo syncing
 ├── hooks/
-│   └── useClaudeAPI.js        # OpenRouter API client hook (gpt-4o-mini)
+│   └── useClaudeAPI.js        # OpenRouter API client hook (free-model router)
 ├── lib/
 │   ├── projectDefaults.js     # Project-aware example epics/scenarios/deps
 │   └── repoContext.js         # Builds "repository context" from live GitHub data

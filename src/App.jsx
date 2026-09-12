@@ -200,7 +200,7 @@ function Footer() {
     }}>
       <p style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
         AI-DLC Command Center · Built to demonstrate AI-Centric Development Life Cycle principles ·
-        Powered by OpenRouter (gpt-4o-mini) ·{' '}
+        Powered by OpenRouter (free models) ·{' '}
         <a
           href="https://github.com/msourial"
           target="_blank"
