@@ -61,6 +61,42 @@ export function buildRiskWarningBanner(body: string): string {
   return banner + body
 }
 
+// GitHub rejects issue creation with a 422 if any label in the payload does
+// not already exist on the target repo. Create labels first (best-effort) so
+// pushing works on repos that haven't been primed with the app's labels.
+async function ensureLabelsExist(repoFullName: string, labels: string[], token: string): Promise<void> {
+  if (!labels.length) return
+  const base = `https://api.github.com/repos/${repoFullName}/labels`
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github.v3+json',
+  }
+
+  let existing = new Set<string>()
+  try {
+    const res = await fetch(base, { headers })
+    if (res.ok) {
+      const list = await res.json()
+      existing = new Set(list.map((l: { name: string }) => l.name))
+    }
+  } catch {
+    // Fall through — if we can't list labels, we'll rely on the issue POST.
+  }
+
+  const missing = labels.filter(l => !existing.has(l))
+  await Promise.all(missing.map(async (name) => {
+    try {
+      await fetch(base, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, color: '3B82F6' }),
+      })
+    } catch {
+      // Best-effort only; the issue POST reports real failures.
+    }
+  }))
+}
+
 export async function createGitHubIssue(
   payload: GitHubIssuePayload,
   repoFullName: string = 'msourial/GenoSync'
@@ -71,6 +107,8 @@ export async function createGitHubIssue(
   }
 
   const apiBase = `https://api.github.com/repos/${repoFullName}`
+  const labels = [...new Set([...payload.labels, ...detectRiskLabels(payload.body)])]
+  await ensureLabelsExist(repoFullName, labels, token)
 
   const res = await fetch(`${apiBase}/issues`, {
     method: 'POST',
@@ -82,7 +120,7 @@ export async function createGitHubIssue(
     body: JSON.stringify({
       title: payload.title,
       body: buildRiskWarningBanner(payload.body),
-      labels: [...new Set([...payload.labels, ...detectRiskLabels(payload.body)])],
+      labels,
     }),
   })
 

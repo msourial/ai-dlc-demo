@@ -45,7 +45,8 @@ Answer 6 questions about current team practices → AI scores maturity across 6 
 ## Tech Stack
 
 - **Frontend**: React 18 + Vite
-- **AI Engine**: Claude claude-sonnet-4-6 via Anthropic API (`/v1/messages`)
+- **AI Engine**: OpenRouter API (`openai/gpt-4o-mini`) via the `chat/completions` endpoint
+- **Data**: Live GitHub metadata, issues, and READMEs per selected repo
 - **Styling**: Pure CSS with design tokens (dark-mode native)
 - **No framework dependencies** beyond React + Lucide icons
 
@@ -60,13 +61,16 @@ npm install
 npm run dev
 ```
 
-The app calls the Anthropic API directly from the browser. In the Anthropic claude.ai environment, no API key configuration is needed. For standalone deployment, add your API key to a `.env` file:
+Create a `.env` file (see `.env.example`) with your keys:
 
 ```env
-VITE_ANTHROPIC_API_KEY=your_key_here
+# OpenRouter API key — https://openrouter.ai/settings/keys
+VITE_OPENROUTER_API_KEY=sk-or-v1-...
+# GitHub Personal Access Token with "repo" scope — https://github.com/settings/tokens
+VITE_GITHUB_TOKEN=github_pat_...
 ```
 
-And update `src/hooks/useClaudeAPI.js` to include the `x-api-key` header.
+> **Security note**: Keys prefixed with `VITE_` are compiled into the client bundle and visible in the browser. Use this demo only with throwaway/rotatable keys, and never commit real secrets. The GitHub token can also be entered at runtime via the **GitHub Token** button (stored in `localStorage`).
 
 ---
 
@@ -74,11 +78,18 @@ And update `src/hooks/useClaudeAPI.js` to include the `x-api-key` header.
 
 ```
 src/
-├── App.jsx                    # Navigation + layout shell
+├── App.jsx                    # Navigation + layout shell + GitHub repo syncing
 ├── hooks/
-│   └── useClaudeAPI.js        # Anthropic API client hook
+│   └── useClaudeAPI.js        # OpenRouter API client hook (gpt-4o-mini)
+├── lib/
+│   ├── projectDefaults.js     # Project-aware example epics/scenarios/deps
+│   └── repoContext.js         # Builds "repository context" from live GitHub data
+├── services/
+│   └── githubService.ts       # GitHub issue creation, label sync, output parsers
 └── components/
     ├── UI.jsx                 # Shared design system components
+    ├── RepoDropdown.jsx       # Custom repo picker
+    ├── TokenModal.jsx         # GitHub PAT configuration modal
     ├── SprintPlanner.jsx      # Module 1: AI sprint decomposition
     ├── RiskSurfacer.jsx       # Module 2: Risk intelligence engine
     ├── ExecBriefing.jsx       # Module 3: Executive briefing generator
